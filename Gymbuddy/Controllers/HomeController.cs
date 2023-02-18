@@ -37,5 +37,11 @@ namespace Gymbuddy.Controllers
             _db.SaveChanges();
             return Ok();
         }
+        [HttpGet("GetPosts")]
+        public IActionResult GetPosts()
+        {
+            var posts = _db.Posts.ToList();
+            return Ok(posts);
+        }
     }
 }
