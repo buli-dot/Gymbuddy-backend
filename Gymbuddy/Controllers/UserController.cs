@@ -1,6 +1,7 @@
 ﻿using Gymbuddy.Entities;
 using Gymbuddy.Models;
 using Gymbuddy.Utilities;
+using GymBuddy.UnitOfWork;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -20,14 +21,17 @@ namespace Gymbuddy.Controllers
     {
         private readonly DB _db;
         private readonly IConfiguration _config;
-        public UserController(DB db, IConfiguration config) { 
+        private readonly IUnitOfWork _unitOfWork;
+        public UserController(DB db, IConfiguration config,IUnitOfWork unitOfWork) { 
             _db= db;
             _config= config;
+            _unitOfWork= unitOfWork;
         }
         [HttpPost("register-user")]
         public IActionResult User([FromForm] RegisterUser mod)
         {
             User model = new User();
+            UserRole userRole = new UserRole();
             model.UserName = mod.username;
             var salt = Cryptography.Salt.Create();
             var hash = Cryptography.Hash.Create(mod.password, salt);
@@ -37,8 +41,12 @@ namespace Gymbuddy.Controllers
             model.Email = mod.email;
             model.FirstName = mod.firstname;
             model.LastName = mod.lastname;
-            _db.Users.Add(model);
-            _db.SaveChanges();
+            _unitOfWork.User.Add(model);
+            _unitOfWork.Save();
+            userRole.RoleId = 1;
+            userRole.UserId = model.Id;
+            _unitOfWork.UserRole.Add(userRole);
+            _unitOfWork.Save();
             return Ok();
                
         }
@@ -60,15 +68,15 @@ namespace Gymbuddy.Controllers
         {
             var securityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_config["Jwt:Key"]));
             var credentials = new SigningCredentials(securityKey, SecurityAlgorithms.HmacSha256);
-            var roles = _db.UserRoles.Where(x => x.UserId == user.Id).Include(x => x.Role);
-            var model = JsonConvert.SerializeObject(roles);
+            var roles = _unitOfWork.UserRole.GetAll().Where(x=>x.UserId == user.Id).ToList();
             var claims = new[]
             {
                 new Claim("Email", user.Email),
                 new Claim("Lastname", user.LastName),
                 new Claim("Username", user.UserName),
                 new Claim("FirstName", user.FirstName),
-                new Claim("Roles",model),
+                new Claim("Roles", roles.ToString()),
+                new Claim("Id",user.Id.ToString()),
             };
 
             var token = new JwtSecurityToken(_config["Jwt:Issuer"],

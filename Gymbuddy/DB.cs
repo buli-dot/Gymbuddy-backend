@@ -1,4 +1,6 @@
-﻿using Gymbuddy.Entities;
+﻿using Gymbuddy.Core.Entities;
+using Gymbuddy.Entities;
+using GymBuddy.Core.Entities;
 using Microsoft.EntityFrameworkCore;
 
 namespace Gymbuddy
@@ -14,9 +16,16 @@ namespace Gymbuddy
             SeedData(modelBuilder);
         }
         public DbSet<User> Users { get; set; }
+        public DbSet<CompetingUser> CompetingUsers { get; set; }
         public DbSet<Role> Roles { get; set; }
         public DbSet<UserRole> UserRoles { get; set; }
+        public DbSet<UserCountry> UserCountries { get; set; }
         public DbSet<Post> Posts { get; set; }
+        public DbSet<Comment> Comments { get; set; }
+        public DbSet<PostLikes> PostLikes { get; set; }
+        public DbSet<Follow> Follows { get; set; }
+        public DbSet<Chat> Chats { get; set; }
+        public DbSet<Connection> Connection { get; set; }
 
         private static void SeedData(ModelBuilder modelBuilder)
         {

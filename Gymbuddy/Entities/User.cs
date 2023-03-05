@@ -9,6 +9,8 @@
         public string PasswordHash { get; set; }
         public string PasswordSalt { get; set; }
         public string Email { get; set; }  
-        public int Age { get; set; }  
+        public int Age { get; set; }
+        public List<UserRole>? UserRoles { get; set; }
+
     }
 }
