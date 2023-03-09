@@ -1,6 +1,8 @@
 ﻿using Gymbuddy.Entities;
 using Gymbuddy.Models;
 using Gymbuddy.Utilities;
+using GymBuddy.Core.Entities;
+using GymBuddy.UnitOfWork;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -14,13 +16,15 @@ namespace Gymbuddy.Controllers
         private readonly DB _db;
         private readonly IWebHostEnvironment _hostEnviroment;
         private readonly FileManager _fileManager;
+        private readonly IUnitOfWork _unitOfWork;
 
 
-        public HomeController(DB db, IWebHostEnvironment hostEnvironment, FileManager fileManager)
+        public HomeController(DB db, IWebHostEnvironment hostEnvironment, FileManager fileManager,IUnitOfWork unitOfWork)
         {
             _db = db;
             _hostEnviroment = hostEnvironment;
             _fileManager = fileManager;
+            _unitOfWork = unitOfWork;
         }
         [HttpPost("Post")]
         public IActionResult Post([FromForm] PostModel obj)
@@ -52,6 +56,17 @@ namespace Gymbuddy.Controllers
         {
             var users = _db.Users.Where(x=>x.FirstName.ToLower().Contains(search.ToLower()) || x.LastName.ToLower().Contains(search.ToLower()) || x.UserName.ToLower().Contains(search.ToLower())).ToList();
             return Ok(users);
+        }
+        [HttpPost("Comment")]
+        public IActionResult CommentPost(CommentModel model)
+        {
+            Comment obj = new Comment();
+            obj.PostId = model.PostId;
+            obj.UserId = model.UserId;
+            obj.Description = model.Description;
+            _unitOfWork.Comment.Add(obj);
+            _unitOfWork.Save();
+            return Ok();
         }
     }
 }

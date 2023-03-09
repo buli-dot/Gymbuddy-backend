@@ -63,15 +63,14 @@ namespace Gymbuddy.Controllers
             }
             return Unauthorized();
         }
-        [HttpPost("deleteUser")]
-        public IActionResult Delete([FromBody]int id) {
-            var Id = Convert.ToInt32(id);
-            var user = _unitOfWork.User.GetFirstOrDefault(x => x.Id == Id);
+        [HttpDelete("{id}")]
+        public IActionResult Delete(int id) {
+            var user = _unitOfWork.User.GetFirstOrDefault(x => x.Id == id);
             if (user != null)
             {
                 _unitOfWork.User.Remove(user);
                 _unitOfWork.Save();
-                return Ok(user);
+                return Ok();
             }
             return NotFound();
         }
