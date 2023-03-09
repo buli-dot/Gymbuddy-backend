@@ -63,6 +63,18 @@ namespace Gymbuddy.Controllers
             }
             return Unauthorized();
         }
+        [HttpPost("deleteUser")]
+        public IActionResult Delete([FromBody]int id) {
+            var Id = Convert.ToInt32(id);
+            var user = _unitOfWork.User.GetFirstOrDefault(x => x.Id == Id);
+            if (user != null)
+            {
+                _unitOfWork.User.Remove(user);
+                _unitOfWork.Save();
+                return Ok(user);
+            }
+            return NotFound();
+        }
 
         private object Generate(User user)
         {
