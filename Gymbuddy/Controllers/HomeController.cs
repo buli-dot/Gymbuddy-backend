@@ -48,7 +48,7 @@ namespace Gymbuddy.Controllers
         [HttpGet("GetPosts")]
         public IActionResult GetPosts()
         {
-            var posts = _db.Posts.Include(x => x.User).ToList();
+            var posts = _unitOfWork.Post.GetAll(includeProperties: "User,Comments");
             return Ok(posts);
         }
         [HttpGet("getFilteredUsers")]
@@ -66,7 +66,7 @@ namespace Gymbuddy.Controllers
             obj.Description = model.Description;
             _unitOfWork.Comment.Add(obj);
             _unitOfWork.Save();
-            return Ok();
+            return Ok(obj);
         }
     }
 }
